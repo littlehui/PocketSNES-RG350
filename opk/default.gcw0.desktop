@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=SNES模拟器
+Name=SNES-NEW
 Comment=支持滤镜，金手指的SNES模拟器
 X-OD-Manual=manual-cn.txt
 Exec=PocketSNES.dge %f

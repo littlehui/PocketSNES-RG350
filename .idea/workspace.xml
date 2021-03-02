@@ -10,45 +10,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9fc89249-af7d-42ec-88be-c1c9ec959691" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/Makefile.linux" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Makefile.gcw0" beforeDir="false" afterPath="$PROJECT_DIR$/Makefile.gcw0" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/make_and_scp.sh" beforeDir="false" afterPath="$PROJECT_DIR$/make_and_scp.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/menu/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/menu/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/menu/menu.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/menu/menu.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/menu/menu.h" beforeDir="false" afterPath="$PROJECT_DIR$/menu/menu.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/menu/scaler.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/menu/scaler.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/menu/scaler.h" beforeDir="false" afterPath="$PROJECT_DIR$/menu/scaler.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/opk/default.gcw0.desktop" beforeDir="false" afterPath="$PROJECT_DIR$/opk/default.gcw0.desktop" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/opk/make_opk.sh" beforeDir="false" afterPath="$PROJECT_DIR$/opk/make_opk.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sal/include/sal_common.h" beforeDir="false" afterPath="$PROJECT_DIR$/sal/include/sal_common.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sal/linux/include/sal.h" beforeDir="false" afterPath="$PROJECT_DIR$/sal/linux/include/sal.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sal/linux/sal.c" beforeDir="false" afterPath="$PROJECT_DIR$/sal/linux/sal.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sal/linux/sal_sound.c" beforeDir="false" afterPath="$PROJECT_DIR$/sal/linux/sal_sound.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sal/linux/sal_timer.c" beforeDir="false" afterPath="$PROJECT_DIR$/sal/linux/sal_timer.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sal/sal_common.c" beforeDir="false" afterPath="$PROJECT_DIR$/sal/sal_common.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sal/unzip.c" beforeDir="false" afterPath="$PROJECT_DIR$/sal/unzip.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/sal/zip.c" beforeDir="false" afterPath="$PROJECT_DIR$/sal/zip.c" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/include/gfx.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/include/gfx.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/include/pixform.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/include/pixform.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/include/snes9x.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/include/snes9x.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/include/soundux.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/include/soundux.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/include/spc700.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/include/spc700.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/linux/port.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/linux/port.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/apu.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/apu.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/apudebug.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/apudebug.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/cpuexec.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/cpuexec.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/cpuops.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/cpuops.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/debug.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/debug.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/gfx.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/gfx.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/globals.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/globals.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/memmap.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/memmap.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/movie.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/movie.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/ppu.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/ppu.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/snaporig.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/snaporig.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/snapshot.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/snapshot.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/snes9x/soundux.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/snes9x/soundux.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -66,11 +28,15 @@
   <component name="ProjectId" id="1mHcScd7SwgzYatTz12qBR7WNr6" />
   <component name="PropertiesComponent">
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../../snes9x4d" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/menu" />
+    <property name="two.files.diff.last.used.file" value="$PROJECT_DIR$/bak/gfx.cpp.origin" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/menu" />
+      <recent name="$PROJECT_DIR$/src/snes9x" />
       <recent name="$PROJECT_DIR$/bak" />
+      <recent name="$PROJECT_DIR$/sal/linux" />
     </key>
   </component>
   <component name="RunDashboard">
@@ -103,7 +69,12 @@
       <workItem from="1609849585658" duration="10402000" />
       <workItem from="1610021781308" duration="32070000" />
       <workItem from="1610282500884" duration="18572000" />
-      <workItem from="1611372113890" duration="4922000" />
+      <workItem from="1611372113890" duration="5871000" />
+      <workItem from="1612531730129" duration="8000" />
+      <workItem from="1612625166455" duration="602000" />
+      <workItem from="1614096839895" duration="11808000" />
+      <workItem from="1614177668298" duration="16786000" />
+      <workItem from="1614611321020" duration="18783000" />
     </task>
     <servers />
   </component>

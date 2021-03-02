@@ -112,6 +112,7 @@ bool8 S9xInitUpdate (void);
 bool8 S9xDeinitUpdate (int Width, int Height, bool8 sixteen_bit);
 void S9xSyncSpeed ();
 
+void updateSupportHiRes(bool highRes);
 #ifdef GFX_MULTI_FORMAT
 bool8 S9xSetRenderPixelFormat (int format);
 #endif

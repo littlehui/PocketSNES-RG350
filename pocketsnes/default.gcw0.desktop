@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=PocketSNES
+Name=SNES-new
 Comment=SNES/SFC Emulator
 Exec=pocketsnes.elf %f
 Icon=pocketsnes

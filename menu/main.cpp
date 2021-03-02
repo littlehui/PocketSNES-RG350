@@ -13,17 +13,20 @@
 #include "soundux.h"
 #include "snapshot.h"
 #include "scaler.h"
+#include <iostream>
 #include "snes9x.h"
 #include "../src/include/ppu.h"
-
+extern u16 previewingWidth;
 #define SNES_SCREEN_WIDTH  256
 #define SNES_SCREEN_HEIGHT 192
+extern struct InternalPPU IPPU;
+extern int currentWidth;
 
 #define FIXED_POINT 0x10000UL
 #define FIXED_POINT_REMAINDER 0xffffUL
 #define FIXED_POINT_SHIFT 16
 
-static struct MENU_OPTIONS mMenuOptions;
+struct MENU_OPTIONS mMenuOptions;
 static int mEmuScreenHeight;
 static int mEmuScreenWidth;
 static int offsetLine = 16;
@@ -172,7 +175,7 @@ void S9xLoadSDD1Data (void)
 
 }
 
-u16 IntermediateScreen[SNES_WIDTH * SNES_HEIGHT_EXTENDED];
+u16 IntermediateScreen[SNES_WIDTH * 2 * SNES_HEIGHT_EXTENDED];
 SDL_Surface *image;
 extern SDL_Surface *mScreen;
 
@@ -204,8 +207,11 @@ bool8_32 S9xDeinitUpdate (int Width, int Height, bool8_32)
 
     // After returning from the menu, clear the background of 3 frames.
     // This prevents remnants of the menu from appearing.
-    if (mFramesCleared < 3)
-    {
+    //mFramesCleared = 0;
+    if (mMenuOptions.fullScreen != 3) {
+        mFramesCleared = 0;
+    }
+    if (mFramesCleared < 3) {
         sal_VideoClear(0);
         mFramesCleared++;
     }
@@ -219,125 +225,197 @@ bool8_32 S9xDeinitUpdate (int Width, int Height, bool8_32)
         LastPAL = PAL;
     }
     //littlehui debug
-    //fprintf(fp, "%s", cheat_file_path);
-    //fprintf(stderr, "littlehui  S9xDeinitUpdate line 184 .RenderedScreenWidth %d called\n", IPPU.RenderedScreenWidth);
-    //fprintf(stderr, "littlehui  S9xDeinitUpdate line 185 .Width %d called\n", Width);
-
-   /* Width = (Width + 7) & ~7;
-    Height = (Height + 7) & ~7;
-    if (Width!=screenWidth || Height!=screenHeight) {
-        screenWidth = Width;
-        //Height = Height << 1;
-        screenHeight = Height;
-        //littlehui
-        if (SDL_MUSTLOCK(mScreen)) SDL_UnlockSurface(mScreen);
-        mScreen = SDL_SetVideoMode(Width, Height, mBpp, SDL_HWSURFACE |
-                                                        #ifdef SDL_TRIPLEBUF
-                                                        SDL_TRIPLEBUF
-                                                        #else
-                                                        SDL_DOUBLEBUF
-                                                        #endif
-        );
-        clearCache = true;
-    }
-    if (clearCache) {
-        clearCache = false;
-        VideoClear();
-        SDL_Flip(mScreen);
-        VideoClear();
-#ifdef SDL_TRIPLEBUF
-        SDL_Flip(mScreen);
-        VideoClear();
+#ifdef MAKLOG
+    printf("mode: %d Render w: %d screen.w: %d screen.pitch: %d\n",
+           mMenuOptions.fullScreen, IPPU.RenderedScreenWidth, mScreen->w,
+           mScreen->pitch);
 #endif
-        GFX.Screen = (uint8*)mScreen->pixels + 512;
-        GFX.Pitch = mScreen->pitch;
-    }*/
+
+    if (!updateVideoMode(false)) return TRUE;
+
+#ifdef MAKLOG
+	std::cout << "main.cpp:237" << " "  << "update resolution end!!" << std::endl;
+#endif
+
+
     if (mMenuOptions.forceFullScreen) {
         offsetLine = 1;
     }
+    bool is512 = IPPU.RenderedScreenWidth == 512;
     switch (mMenuOptions.fullScreen)
     {//TODO littlehui
         case 3:
             break;
-        case 0: /* No scaling */
-            // case 3: /* Hardware scaling */
-        {
+            /*       case 1: *//* Fast software scaling *//*
+            if (PAL) {
+        #ifdef MAKLOG
+                //                std::cout << "main.cpp:232" << " "  << "fast PAL" << std::endl;
+        #endif
+                if (is512) {
+                    downscale_512x240_to_320x240(
+                            (uint32_t *) sal_VideoGetBuffer(),
+                            (uint32_t *) IntermediateScreen,
+                            SNES_WIDTH);
 
+                } else {
+
+                    upscale_256x240_to_320x240(
+                            (uint32_t *) sal_VideoGetBuffer(),
+                            (uint32_t *) IntermediateScreen,
+                            SNES_WIDTH);
+                }
+            } else {
+                if (is512) {
+
+                    downscale_512x224_to_320x240(
+                            (uint32_t *) sal_VideoGetBuffer(),
+                            (uint32_t *) IntermediateScreen,
+                            SNES_WIDTH);
+
+                } else {
+                    upscale_256x224_to_320x240(
+                            (uint32_t *) sal_VideoGetBuffer(),
+                            (uint32_t *) IntermediateScreen,
+                            SNES_WIDTH);
+
+                }
+            }
+            break;
+
+        case 2: *//* Smooth software scaling *//*
+            if (PAL) {
+            #ifdef MAKLOG
+                std::cout << "main.cpp:250" << " " << "smooth pal" << std::endl;
+            #endif
+                if (is512){
+                    downscale_512x240_to_320x240_bilinearish(
+                            (uint32_t *) sal_VideoGetBuffer() ,
+                            (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                } else {
+
+                    upscale_256x240_to_320x240_bilinearish(
+                            (uint32_t *) sal_VideoGetBuffer() ,
+                            (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                }
+            } else {
+            #ifdef MAKLOG
+                std::cout << "main.cpp:257" << " " << "smooth ntsc"
+                          << std::endl;
+            #endif
+                if (is512){
+
+                    downscale_512x224_to_320x240_bilinearish(
+                            (uint32_t *) sal_VideoGetBuffer() ,
+                            (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                } else {
+
+                    upscale_256x224_to_320x240_bilinearish(
+                            (uint32_t *) sal_VideoGetBuffer() ,
+                            (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                }
+            }
+            break;
+*/
+        case 0: /* No scaling */
+        {
             u32 h = PAL ? SNES_HEIGHT_EXTENDED : SNES_HEIGHT;
             u32 y, pitch = sal_VideoGetPitch();
-            u8 *src = (u8*) IntermediateScreen, *dst = (u8*) sal_VideoGetBuffer()
-                                                       + ((sal_VideoGetWidth() - SNES_WIDTH) / 2) * sizeof(u16)
-                                                       + ((sal_VideoGetHeight() - h) / 2) * pitch;
-            for (y = 0; y < h; y++)
-            {
-                memmove(dst, src, SNES_WIDTH * sizeof(u16));
-                src += SNES_WIDTH * sizeof(u16);
+            u8 *src = (u8 *) GFX.Screen, *dst = (u8 *) sal_VideoGetBuffer()
+                                                + ((sal_VideoGetWidth() -
+                                                    mScreen->w) / 2) *
+                                                  sizeof(u16)
+                                                + ((sal_VideoGetHeight() - h) /
+                                                   2) * pitch;
+            for (y = 0; y < h; y++) {
+                memmove(dst, src, mScreen->w * sizeof(u16));
+                src += mScreen->w * sizeof(u16);
                 dst += pitch;
             }
             break;
         }
-            /*case 1:  Fast software scaling
-                if (PAL) {
-                    upscale_256x240_to_320x240((uint32_t*) sal_VideoGetBuffer(), (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                } else {
-                    upscale_256x224_to_320x240((uint32_t*) sal_VideoGetBuffer(), (uint32_t*) IntermediateScreen, SNES_WIDTH);
+        case 4:
+            if (is512) {
+                u32 h = PAL ? SNES_HEIGHT_EXTENDED : SNES_HEIGHT;
+                u32 y, pitch = sal_VideoGetPitch();
+                u8 *src = (u8 *) GFX.Screen, *dst = (u8 *) sal_VideoGetBuffer();
+                for (y = 0; y < h; y++) {
+                    memmove(dst, src, mScreen->w * sizeof(u16));
+                    dst += pitch;
+                    memmove(dst, src, mScreen->w * sizeof(u16));
+                    src += mScreen->w * sizeof(u16);
+                    dst += pitch;
                 }
-                break;
-
-            case 2:  Smooth software scaling
-                if (PAL) {
-                    upscale_256x240_to_320x240_bilinearish((uint32_t*) sal_VideoGetBuffer() + 160, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                    //upscale_256x240_to_640x480_bilinearish((uint32_t*) sal_VideoGetBuffer() + 320, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                } else {
-                    upscale_256x224_to_320x240_bilinearish((uint32_t*) sal_VideoGetBuffer() + 160, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                    //upscale_256x224_to_640x480_bilinearish((uint32_t*) sal_VideoGetBuffer() + 320, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                    //upscale_256x224_to_512x480((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-
-                }
-                break;
-            case 4:
-                //littlehui debug
+            } else {
                 if (PAL) {
                     upscale_256x240_to_512x480((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                    //upscale_256x240_to_640x480_bilinearish((uint32_t*) sal_VideoGetBuffer() + 160, (uint32_t*) IntermediateScreen, SNES_WIDTH);
                 } else {
                     upscale_256x224_to_512x448((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                    //upscale_256x224_to_512x480((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
                 }
-                break;*/
+            }
+            break;
         case 5:
-            //TODO littlehui
-            // double scanline
             if (PAL) {
-                upscale_256x240_to_512x480_scanline((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                //upscale_256x240_to_640x480_bilinearish((uint32_t*) sal_VideoGetBuffer() + 160, (uint32_t*) IntermediateScreen, SNES_WIDTH);
+                if (is512) {
+                    upscale_512x240_to_512x480_scanline(
+                            (uint32_t *) sal_VideoGetBuffer() + 512,
+                            (uint32_t *) IntermediateScreen,
+                            SNES_WIDTH);
+
+                } else {
+                    upscale_256x240_to_512x480_scanline((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
+                }
             } else {
                 if (mMenuOptions.forceFullScreen) {
-                    upscale_256x224_to_512x448_scanline((uint32_t *) sal_VideoGetBuffer() + 256,
-                                                        (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    if (is512) {
+                        upscale_512x224_to_512x448_scanline(
+                                (uint32_t *) sal_VideoGetBuffer(),
+                                (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    } else {
+                        upscale_256x224_to_512x448_scanline((uint32_t *) sal_VideoGetBuffer(),
+                                                            (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    }
                 } else {
-                    upscale_256x224_to_512x448_scanline((uint32_t *) sal_VideoGetBuffer() + 256 * 16,
-                                                        (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    if (is512){
+                        upscale_512x224_to_512x448_scanline(
+                                (uint32_t *) sal_VideoGetBuffer() + 256 * 16,
+                                (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    } else {
+                        upscale_256x224_to_512x448_scanline((uint32_t *) sal_VideoGetBuffer() + 256 * 16,
+                                                            (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    }
                 }
             }
             break;
         case 6:
-            //TODO littlehui
             //double grid
             if (PAL) {
-                upscale_256x240_to_512x480_grid((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                //upscale_256x240_to_640x480_bilinearish((uint32_t*) sal_VideoGetBuffer() + 160, (uint32_t*) IntermediateScreen, SNES_WIDTH);
+                if (is512){
+                    upscale_512x240_to_512x480_grid(
+                            (uint32_t *) sal_VideoGetBuffer() + 512,
+                            (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                } else {
+                    upscale_256x240_to_512x480_grid((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
+                }
             } else {
                 if (mMenuOptions.forceFullScreen) {
-                    upscale_256x224_to_512x448_grid((uint32_t *) sal_VideoGetBuffer() + 256,
-                                                    (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    if (is512){
+                        upscale_512x224_to_512x448_grid(
+                                (uint32_t *) sal_VideoGetBuffer(),
+                                (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    } else {
+                        upscale_256x224_to_512x448_grid((uint32_t *) sal_VideoGetBuffer(),
+                                                        (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    }
                 } else {
-                    upscale_256x224_to_512x448_grid((uint32_t *) sal_VideoGetBuffer() + 256  * 16,
-                                                    (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    if (is512){
+                        upscale_512x224_to_512x448_grid(
+                                (uint32_t *) sal_VideoGetBuffer()  + 256  * 16,
+                                (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    } else {
+                        upscale_256x224_to_512x448_grid((uint32_t *) sal_VideoGetBuffer() + 256  * 16,
+                                                        (uint32_t *) IntermediateScreen, SNES_WIDTH);
+                    }
                 }
-                //upscale_256x224_to_512x448_grid1((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                //upscale_256x224_to_512x448_scanline_v((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
-                //upscale_256x224_to_512x448((uint32_t*) sal_VideoGetBuffer() + 256, (uint32_t*) IntermediateScreen, SNES_WIDTH);
             }
             break;
             /* case 7:
@@ -565,8 +643,14 @@ const char *S9xGetFilenameInc (const char *e)
 void S9xSyncSpeed(void)
 {
 	calcFps ++;
-    if (IsPreviewingState())
-		return;
+    if (IsPreviewingState()) {
+		previewingWidth = IPPU.RenderedScreenWidth;
+        #ifdef MAKLOG
+        std::cout << "main.cpp:410" << " "  << "get render width: " << previewingWidth << std::endl;
+        #endif
+        return;
+	}
+
     if (Settings.TurboMode)
     {
         if (++IPPU.FrameSkip >= Settings.TurboSkipFrames) 
@@ -812,7 +896,7 @@ int SnesInit()
 #endif
 
     //littlehui modify
-    Settings.SupportHiRes = FALSE;
+    Settings.SupportHiRes = TRUE;
     Settings.NetPlay = FALSE;
     Settings.ServerName [0] = 0;
     Settings.AutoSaveDelay = 1;

@@ -282,6 +282,7 @@ void DrawLargePixel16Sub (uint32 Tile, uint32 Offset,
 void DrawLargePixel16Sub1_2 (uint32 Tile, uint32 Offset,
 			     uint32 StartPixel, uint32 Pixels,
 			     uint32 StartLine, uint32 LineCount);
+
 void updateSupportHiRes(bool highRes) {
     if (highRes) {
         DrawHiResTilePtr = DrawTile16;
@@ -3565,89 +3566,44 @@ void S9xUpdateScreen ()
 	
     uint32 starty = GFX.StartY;
     uint32 endy = GFX.EndY;
-	
-    if (Settings.SupportHiRes &&
-		(PPU.BGMode == 5 || PPU.BGMode == 6 || IPPU.Interlace || IPPU.DoubleHeightPixels))
+
+    //down littlehui modify
+
+    if (Settings.SupportHiRes)
     {
-		if (PPU.BGMode == 5 || PPU.BGMode == 6|| IPPU.Interlace)
-		{
-            //fprintf(stderr, "littlehui S9xUpdateScreen 3567 line IPPU.RenderedScreenWidth 512 called\n");
+        if (!IPPU.DoubleWidthPixels && (PPU.BGMode == 5 || PPU.BGMode == 6))
+        {
+            // Have to back out of the regular speed hack
+            for (uint32 y = 0; y < GFX.StartY; y++)
+            {
+                uint8	*p = GFX.Screen + y * GFX.PPL + 255;
+                uint8	*q = GFX.Screen + y * GFX.PPL + 510;
+
+                for (int x = 255; x >= 0; x--, p--, q -= 2)
+                    *q = *(q + 1) = *p;
+            }
+
+            IPPU.DoubleWidthPixels = TRUE;
+            fprintf(stderr, "littlehui  IPPU.RenderedScreenWidth 512 called\n");
             IPPU.RenderedScreenWidth = 512;
-			x2 = 2;
-		}
+        }
 
-		if (IPPU.DoubleHeightPixels)
-		{
-			starty = GFX.StartY * 2;
-			endy = GFX.EndY * 2 + 1;
-		}
-
-		if ((PPU.BGMode == 5 || PPU.BGMode == 6) && !IPPU.DoubleWidthPixels)
-		{
-			// The game has switched from lo-res to hi-res mode part way down
-			// the screen. Scale any existing lo-res pixels on screen
-#ifndef FOREVER_16_BIT
-			if (Settings.SixteenBit)
-			{
-#endif
-				for (register uint32 y = 0; y < starty; y++)
-				{
-					register uint16 *p = (uint16 *) (GFX.Screen + y * GFX.Pitch2) + 255;
-					register uint16 *q = (uint16 *) (GFX.Screen + y * GFX.Pitch2) + 510;
-	
-					for (register int x = 255; x >= 0; x--, p--, q -= 2)
-						*q = *(q + 1) = *p;
-				}
-#ifndef FOREVER_16_BIT
-			}
-			else
-			{
-				for (register uint32 y = 0; y < starty; y++)
-				{
-					register uint8 *p = GFX.Screen + y * GFX.Pitch2 + 255;
-					register uint8 *q = GFX.Screen + y * GFX.Pitch2 + 510;
-					for (register int x = 255; x >= 0; x--, p--, q -= 2)
-						*q = *(q + 1) = *p;
-				}
-			}
-#endif
-			IPPU.DoubleWidthPixels = TRUE;
-			IPPU.HalfWidthPixels = FALSE;
-		}
-        // BJ: And we have to change the height if Interlace gets set,
-        //     too.
-		if (IPPU.Interlace && !IPPU.DoubleHeightPixels) {
-			starty = GFX.StartY * 2;
-			endy = GFX.EndY * 2 + 1;
-            IPPU.RenderedScreenHeight = PPU.ScreenHeight << 1;
+        if (!IPPU.DoubleHeightPixels && IPPU.Interlace && (PPU.BGMode == 5 || PPU.BGMode == 6))
+        {
             IPPU.DoubleHeightPixels = TRUE;
-            GFX.Pitch2 = GFX.RealPitch;
-            GFX.Pitch = GFX.RealPitch * 2;
-#ifndef FOREVER_16_BIT
-            if (Settings.SixteenBit)
-#endif
-                GFX.PPL = GFX.PPLx2 = GFX.RealPitch;
-#ifndef FOREVER_16_BIT
-            else
-                GFX.PPL = GFX.PPLx2 = GFX.RealPitch << 1;
-#endif
-			
-            // The game has switched from non-interlaced to interlaced mode
-            // part way down the screen. Scale everything.
-            for (register int32 y = (int32) GFX.StartY - 1; y >= 0; y--)
-			{
-				// memmove converted: Same malloc, different addresses, and identical addresses at line 0 [Neb]
-				// DS2 DMA notes: This code path is unused [Neb]
-				memmove (GFX.Screen + y * 2 * GFX.Pitch2,
-					GFX.Screen + y * GFX.Pitch2,
-					GFX.Pitch2);
-				// memmove converted: Same malloc, different addresses [Neb]
-				memmove (GFX.Screen + (y * 2 + 1) * GFX.Pitch2,
-					GFX.Screen + y * GFX.Pitch2,
-					GFX.Pitch2);
-			}
-		}
+            IPPU.RenderedScreenHeight = PPU.ScreenHeight << 1;
+            //GFX.PPL = GFX.RealPPL << 1;
+            //GFX.DoInterlace = 2;
+
+/*            for (int32 y = (int32) GFX.StartY - 2; y >= 0; y--)
+                memmove(GFX.Screen + (y + 1) * GFX.PPL, GFX.Screen + y * GFX.RealPPL, GFX.PPL * sizeof(uint16));*/
+        }
     }
+
+    //up littlehui modify
+
+
+
     else if (!Settings.SupportHiRes)
     {
 	if (PPU.BGMode == 5 || PPU.BGMode == 6 || IPPU.Interlace)

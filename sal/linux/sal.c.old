@@ -97,7 +97,7 @@ static u32 sal_Input(int held, u32 j)
 			if (held) return inputHeld[j];
 			return 0;
 		}
-		
+
 		do {
 			switch (event.type) {
 			case SDL_KEYDOWN:

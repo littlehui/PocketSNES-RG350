@@ -9,6 +9,7 @@
 #include <sys/stat.h>
 #include <SDL.h>
 #include <SDL_ttf.h>
+#include <stdbool.h>
 
 #define SAL_OK						1
 #define SAL_ERROR					0
@@ -145,4 +146,7 @@ s32 sal_ImageDrawTiled(u16 *image, u32 width, u32 height, s32 xScroll, s32 yScro
 s32 sal_ImageDraw(u16 *image, u32 width, u32 height, s32 x, s32 y);
 s32 sal_HighlightBar(s32 width, s32 height, s32 x, s32 y);
 
+extern int mainEntry(int argc, char *argv[]);
+extern void updateWindowSize(int width, int height, int isSoftware, u32 fullScreenOption);
+extern bool updateVideoMode(bool force);
 #endif /* __SAL_COMMON_H__ */

@@ -8,6 +8,7 @@
 #include "memmap.h"
 #include "soundux.h"
 #include "cheats.h"
+#include <iostream>
 #include "cjs_font.h" //cjs
 #include "cjs.h" //cjs
 #include "cjs_sdl.h" //cjs
@@ -18,6 +19,8 @@
 #define ROM_SELECTOR_DEFAULT_FOCUS		2
 #define ROM_SELECTOR_ROM_START			3
 
+extern SDL_Surface *mScreen;
+extern u16 IntermediateScreen[];
 static u16 mMenuBackground[SAL_SCREEN_WIDTH * SAL_SCREEN_HEIGHT];
 
 static s32 mMenutileXscroll=0;
@@ -26,6 +29,7 @@ static s32 mTileCounter=0;
 static s32 mQuickSavePresent=0;
 //littlehui modify
 static u32 mPreviewingState=0;
+u16 previewingWidth= 0;
 
 static s8 mMenuText[30][MAX_DISPLAY_CHARS];
 
@@ -855,7 +859,10 @@ static s32 SaveStateSelect(s32 mode)
 			case 5:
 			{
 				u32 DestWidth = 205, DestHeight = 154;
-				sal_VideoBitmapScale(0, 0, SNES_WIDTH, SNES_HEIGHT, DestWidth, DestHeight, SAL_SCREEN_WIDTH - DestWidth, &mTempFb[0], (u16*)sal_VideoGetBuffer()+(SAL_SCREEN_WIDTH*(((202 + 16) - DestHeight)/2))+((262 - DestWidth)/2));
+				sal_VideoBitmapScale(0, 0, previewingWidth , SNES_HEIGHT, DestWidth, DestHeight, SAL_SCREEN_WIDTH - DestWidth, &mTempFb[0], (u16*)sal_VideoGetBuffer()+(SAL_SCREEN_WIDTH*(((202 + 16) - DestHeight)/2))+((262 - DestWidth)/2));
+				#ifdef MAKLOG
+				std::cout << "menu.cpp:818" << " "  << "show bitmap width: " << previewingWidth << std::endl;
+				#endif
 				sal_VideoDrawRect(0, 192, 262, 16, SAL_RGB(22,0,0));
 				if(mode==1) sal_VideoPrint((262-(strlen(MENU_TEXT_LOAD_SAVESTATE)<<3))>>1,191,MENU_TEXT_LOAD_SAVESTATE,SAL_RGB(31,31,31));
 				else if(mode==0) sal_VideoPrint((262-(strlen(MENU_TEXT_OVERWRITE_SAVESTATE)<<3))>>1,191,MENU_TEXT_OVERWRITE_SAVESTATE,SAL_RGB(31,31,31));
@@ -918,9 +925,22 @@ static s32 SaveStateSelect(s32 mode)
 					// GFX.Screen = (uint8 *) sal_VideoGetBuffer();
 					IPPU.RenderThisFrame=TRUE;
 					unsigned int fullScreenSave = mMenuOptions->fullScreen;
-					mMenuOptions->fullScreen = 0;
+					mMenuOptions->fullScreen = 1;
                     S9xMainLoop ();
+                    updateVideoMode(true);
 					mMenuOptions->fullScreen = fullScreenSave;
+					sal_AudioSetMuted(0);
+					mPreviewingState = 0;
+					action=5;
+                    mPreviewingState = 1;
+                    sal_AudioSetMuted(1);
+                    GFX.Screen = (uint8 *) &mTempFb[0];
+                    IPPU.RenderThisFrame=TRUE;
+                     fullScreenSave = mMenuOptions->fullScreen;
+                    mMenuOptions->fullScreen = 1;
+                    S9xMainLoop ();
+                    updateVideoMode(true);
+                    mMenuOptions->fullScreen = fullScreenSave;
 					sal_AudioSetMuted(0);
 					mPreviewingState = 0;
 					action=5;
@@ -1248,7 +1268,7 @@ void SettingsMenuUpdateText(s32 menu_index)
                     strcpy(mMenuText[SETTINGS_MENU_FULLSCREEN],"视频                    硬件拉伸");
 					break;
                 case 4:
-                    strcpy(mMenuText[SETTINGS_MENU_FULLSCREEN],"视频                双倍硬件拉伸");
+                    strcpy(mMenuText[SETTINGS_MENU_FULLSCREEN],"视频                  硬件拉伸X2");
                     break;
                 case 5:
                     strcpy(mMenuText[SETTINGS_MENU_FULLSCREEN],"视频                 双倍-扫描线");
@@ -1588,28 +1608,28 @@ s32 SettingsMenu(void)
 					if (keys & SAL_INPUT_RIGHT)
 					{
 					    //0,1,2,3,4,5,6,7
-					    //0,3,5,6
+					    //3,4,5,6
 						mMenuOptions->fullScreen++;
-						if (mMenuOptions->fullScreen > 0  && mMenuOptions->fullScreen < 3) {
+						if (mMenuOptions->fullScreen >= 0  && mMenuOptions->fullScreen < 3) {
                             mMenuOptions->fullScreen = 3;
                         }
-						if (mMenuOptions->fullScreen > 3  && mMenuOptions->fullScreen < 5) {
+/*						if (mMenuOptions->fullScreen > 3  && mMenuOptions->fullScreen < 5) {
                             mMenuOptions->fullScreen = 5;
-                        }
+                        }*/
                         if (mMenuOptions->fullScreen == 7) {
                             mMenuOptions->fullScreen++;
                         }
-						if(mMenuOptions->fullScreen > 7) mMenuOptions->fullScreen = 0;
+						if(mMenuOptions->fullScreen > 7) mMenuOptions->fullScreen = 3;
 					}
 					else
 					{
 						mMenuOptions->fullScreen--;
-                        if (mMenuOptions->fullScreen > 0  && mMenuOptions->fullScreen < 3) {
-                            mMenuOptions->fullScreen = 0;
-                        }
-                        if (mMenuOptions->fullScreen > 3  && mMenuOptions->fullScreen < 5) {
+                        if (mMenuOptions->fullScreen >= 0  && mMenuOptions->fullScreen < 3) {
                             mMenuOptions->fullScreen = 3;
                         }
+/*                        if (mMenuOptions->fullScreen > 3  && mMenuOptions->fullScreen < 5) {
+                            mMenuOptions->fullScreen = 3;
+                        }*/
 						if(mMenuOptions->fullScreen > 7) mMenuOptions->fullScreen = 7;
                         if (mMenuOptions->fullScreen == 7) {
                             mMenuOptions->fullScreen--;
